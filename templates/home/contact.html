@@ -1,0 +1,89 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block keywords %} {% endblock %}
+
+{% block description %} {% endblock %}
+
+{% block title %} Home {% endblock %}
+
+{% block extrahead %} {% endblock %}
+
+{% block extrastyle %} {% endblock %}
+
+{% block header %} {% include 'partials/_header.html' %} {% endblock %}
+
+{% block navbar %} {% include 'partials/_navbar.html' %} {% endblock %}
+
+{% block content %}
+
+<div id="breadcrumb">
+    <div class="container">
+        <ul class="breadcrumb">
+            <li><a href="#">Home</a></li>
+            <li class="active">Blank</li>
+        </ul>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="billing-details">
+                    <div class="section-title">
+                        <h3 class="title">Contact Form</h3>
+                    </div>
+                    <form id="checkout-form" class="review-form">
+                        <div class="form-group">
+                            <input class="input" type="text" name="name" placeholder="Your Name" />
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="email" name="email" placeholder="Email Address" />
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="subject" placeholder="Subject" />
+                        </div>
+                        <div class="form-group">
+                            <textarea class="input" name="message" placeholder="Your Message"></textarea>
+                        </div>
+                        <button type="submit" class="primary-btn">Send Message</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="shiping-methods">
+                    <div class="section-title">
+                        <h3 class="title">Contact Information</h3>
+                    </div>
+                    <div class="">
+                        <h4>Call us Now:</h4>
+                        <ul>
+                            <li>+123 456-789-1120</li>
+                            <li>+522 672-452-1120</li>
+                        </ul>
+                        <hr />
+                        <h4>Email:</h4>
+                        <ul>
+                            <li><a href="mailto:info@yourwebsite.com">info@yourwebsite.com</a></li>
+                            <li><a href="mailto:info@yourwebsite.com">support@yourwebsite.com</a></li>
+                        </ul>
+                        <hr />
+                        <h4>Our Address:</h4>
+                        <ul>
+                            <li>KA-62/1, Travel Agency, 45 Grand Central Terminal, New York.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer %} {% include 'partials/_footer.html' %} {% endblock %}
+
+{% block extrascripts %} {% endblock %}

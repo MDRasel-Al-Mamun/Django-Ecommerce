@@ -1,0 +1,59 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block keywords %} {% endblock %}
+
+{% block description %} {% endblock %}
+
+{% block title %} Home {% endblock %}
+
+{% block extrahead %} {% endblock %}
+
+{% block extrastyle %} {% endblock %}
+
+{% block header %} {% include 'partials/_header.html' %} {% endblock %}
+
+{% block navbar %} {% include 'partials/_navbar.html' %} {% endblock %}
+
+{% block content %}
+
+
+<div id="breadcrumb">
+    <div class="container">
+        <ul class="breadcrumb">
+            <li><a href="#">Home</a></li>
+            <li class="active">Blank</li>
+        </ul>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <h1>About us</h1>
+            <h1>&nbsp;</h1>
+            <h1>A global video channel screening the best in culture</h1>
+            <p>NOWNESS is a movement for creative excellence in storytelling celebrating the extraordinary of every
+                day. Launched in 2010, NOWNESS&rsquo; unique programming strategy has established it as the go to
+                source of inspiration and influence across art, design, fashion, beauty, music, food, and travel.
+                Our curatorial expertise and award-winning approach to storytelling is unparalleled. We work with
+                exceptional talent, and both established and emerging filmmakers, which connects our audience to
+                emotional and sensorial stories designed to provoke inspiration and debate.</p>
+
+            <p>NOWNESS launched a Chinese-language site in 2012 and NOWNESS ASIA in 2020. Since 2013, videos are
+                available in up to 10 languages&mdash;including English, Chinese, French, German, Italian, Japanese,
+                Korean, Portuguese, Spanish and Russian (simply turn on Subtitles on our player).</p>
+
+            <p><a href="https://www.nowness.com/">BECOME A MEMBER</a></p>
+
+            <p>ALREADY A MEMBER?&nbsp;<a href="https://www.nowness.com/">SIGN IN</a></p>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %} {% include 'partials/_footer.html' %} {% endblock %}
+
+{% block extrascripts %} {% endblock %}
