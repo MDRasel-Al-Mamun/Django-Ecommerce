@@ -4,6 +4,8 @@ To Create a Full Ecommerce Website with Django
 
 > - <a href="#model">1. Category & Product Model Setup </a>
 
+> - <a href="#category">2. Show All Nested Category In Navbar </a>
+
 
 ## 1. Category & Product Model Setup <a href="" name="model"> - </a>
 
@@ -287,6 +289,60 @@ admin.site.register(Images, ImagesAdmin)
 1. Run Command - `python manage.py makemigrations` & `python manage.py migrate`
 2. Create some category & product - `127.0.0.1:8000/admin`
 
+
+## 2. Show All Nested Category with Template Tag <a href="" name="category"> - </a>
+
+1. Create files > home - templatetags > `__init__.py` & `ecommercetags.py`
+
+* home > templatetags > ecommercetags.py
+
+```python
+from django import template
+from product.models import Category
+
+register = template.Library()
+
+@register.simple_tag
+def categorylist():
+    return Category.objects.all()
+```
+
+
+* templates > partials > _navbar.html
+
+```html
+{% load mptt_tags %}
+
+{% load ecommercetags %}
+
+<div class="category-nav">
+    <span class="category-header">Categories <i class="fa fa-list"></i></span>
+    {% categorylist as category %}
+
+    <ul class="category-list">
+    {% recursetree category %}
+        <li class="dropdown side-dropdown">
+            <a href="" class="dropdown-toggle" {% if not node.is_leaf_node %}data-toggle="dropdown" aria-expanded="true" {% endif %}>
+                {{ node.title }} 
+                {% if not node.is_leaf_node %} <i class="fa fa-angle-right"></i> {% endif %}
+            </a>
+            <div class="custom-menu">
+                {% if not node.is_leaf_node %}
+                <ul class="list-links">
+                    <h3 class="list-links-title" style="padding-bottom: 20px;">
+                        All {{ node.title }}
+                    </h3>
+                    <a href="#">{{ children }}</a>
+                </ul>
+                {% endif %}
+                <hr class="hidden-md hidden-lg">
+            </div>
+        </li>
+    {% endrecursetree %}
+        <li><a href="#">View All</a></li>
+    </ul>
+</div>
+```
 ## Getting started
 
 Steps:

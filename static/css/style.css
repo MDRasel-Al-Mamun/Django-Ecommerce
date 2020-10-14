@@ -76,6 +76,7 @@ a {
   color: #30323A;
   -webkit-transition: 0.3s color;
   transition: 0.3s color;
+  cursor: pointer;
 }
 
 a:hover, a:focus {
@@ -656,7 +657,7 @@ textarea.input {
   border-left: 2px solid #F8694A;
   left: 100%;
   top: 0;
-  width: 750px;
+  width: 350px;
   -webkit-transform: translate(15px, 0px);
   -ms-transform: translate(15px, 0px);
   transform: translate(15px, 0px);
@@ -666,6 +667,11 @@ textarea.input {
   -webkit-transform: translate(0px, 0px);
   -ms-transform: translate(0px, 0px);
   transform: translate(0px, 0px);
+}
+
+.dropdown.side-dropdown>.custom-menu ul li{
+  margin-bottom: 8px !important;
+  margin-top: 8px !important;
 }
 
 /*----------------------------*\
