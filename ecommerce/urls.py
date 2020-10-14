@@ -1,11 +1,13 @@
 from django.contrib import admin
 from django.conf import settings
-from django.urls import path, include
+from filebrowser.sites import site
 from django.conf.urls.static import static
-
+from django.urls import path, re_path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    re_path(r'^admin/filebrowser/', site.urls),
+    re_path(r'^tinymce/', include('tinymce.urls')),
 
     path('', include('home.urls')),
     path('product/', include('product.urls')),
