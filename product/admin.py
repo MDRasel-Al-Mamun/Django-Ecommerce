@@ -60,3 +60,15 @@ class ImagesAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Images, ImagesAdmin)
+
+
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'comment', 'status', 'create_at']
+    list_filter = ['status']
+    readonly_fields = ('__str__', 'comment', 'subject', 'ip', 'user', 'product', 'rate', 'id')
+
+    class Meta:
+        model = Comment
+
+
+admin.site.register(Comment, CommentAdmin)

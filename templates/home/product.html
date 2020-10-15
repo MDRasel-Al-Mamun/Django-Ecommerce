@@ -63,7 +63,9 @@
          {% endif %}
          <!-- <span class="sale">-20%</span> -->
         </div>
-        <button class="main-btn quick-view"><i class="fa fa-search-plus"></i> Quick view</button>
+        <a href="{{ product.get_absolute_url }}" class="main-btn quick-view">
+         <i class="fa fa-search-plus"></i> Quick view
+        </a>
         <img src="{{ product.imageURL }}" height="300px" width="100%" alt="">
        </div>
        <div class="product-body">
@@ -71,14 +73,15 @@
          <!-- <del class="product-old-price">$45.00</del> -->
         </h3>
         <div class="product-rating">
-         <i class="fa fa-star"></i>
-         <i class="fa fa-star"></i>
-         <i class="fa fa-star"></i>
-         <i class="fa fa-star"></i>
-         <i class="fa fa-star-o empty"></i>
+         <i class="fa fa-star{% if product.avaregereview < 1%}-o empty{% endif%}"></i>
+         <i class="fa fa-star{% if product.avaregereview < 2%}-o empty{% endif%}"></i>
+         <i class="fa fa-star{% if product.avaregereview < 3%}-o empty{% endif%}"></i>
+         <i class="fa fa-star{% if product.avaregereview < 4%}-o empty{% endif%}"></i>
+         <i class="fa fa-star{% if product.avaregereview < 5%}-o empty{% endif%}"></i>
+         {{ product.avaregereview }} / {{ product.countreview }}
         </div>
         <h3 class="product-name">
-         <a href="#">{{ product.title|truncatewords:10 }}</a>
+         <a href="{{ product.get_absolute_url }}">{{ product.title|truncatewords:10 }}</a>
         </h3>
         <div class="product-btns">
          <button class="main-btn icon-btn"><i class="fa fa-heart"></i></button>
@@ -118,11 +121,13 @@
       <div class="product-thumb">
        <div class="product-label">
         {% if latest.label %}
-        <span>New</span>
+        <span>{{ latest.label }}</span>
         {% endif %}
         <!-- <span class="sale">-20%</span> -->
        </div>
-       <button class="main-btn quick-view"><i class="fa fa-search-plus"></i> Quick view</button>
+       <a href="{{ latest.get_absolute_url }}" class="main-btn quick-view">
+        <i class="fa fa-search-plus"></i> Quick view
+       </a>
        <img src="{{ latest.imageURL }}" height="300px" width="100%" alt="">
       </div>
       <div class="product-body">
@@ -130,13 +135,16 @@
         <!-- <del class="product-old-price">$45.00</del> -->
        </h3>
        <div class="product-rating">
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star-o empty"></i>
+        <i class="fa fa-star{% if latest.avaregereview < 1%}-o empty{% endif%}"></i>
+        <i class="fa fa-star{% if latest.avaregereview < 2%}-o empty{% endif%}"></i>
+        <i class="fa fa-star{% if latest.avaregereview < 3%}-o empty{% endif%}"></i>
+        <i class="fa fa-star{% if latest.avaregereview < 4%}-o empty{% endif%}"></i>
+        <i class="fa fa-star{% if latest.avaregereview < 5%}-o empty{% endif%}"></i>
+        {{ latest.avaregereview }} / {{ latest.countreview }}
        </div>
-       <h2 class="product-name"><a href="#">{{ latest.title|truncatewords:10 }}</a></h2>
+       <h2 class="product-name">
+        <a href="{{ latest.get_absolute_url }}">{{ latest.title|truncatewords:10 }}</a>
+       </h2>
        <div class="product-btns">
         <button class="main-btn icon-btn"><i class="fa fa-heart"></i></button>
         <button class="main-btn icon-btn"><i class="fa fa-exchange"></i></button>
@@ -169,11 +177,13 @@
       <div class="product-thumb">
        <div class="product-label">
         {% if pick.label %}
-        <span>New</span>
+        <span>{{ pick.label }}</span>
         {% endif %}
         <!-- <span class="sale">-20%</span> -->
        </div>
-       <button class="main-btn quick-view"><i class="fa fa-search-plus"></i> Quick view</button>
+       <a href="{{ pick.get_absolute_url }}" class="main-btn quick-view">
+        <i class="fa fa-search-plus"></i> Quick view
+       </a>
        <img src="{{ pick.imageURL }}" width="100%" height="300px" alt="">
       </div>
       <div class="product-body">
@@ -181,13 +191,16 @@
         <!-- <del class="product-old-price">$45.00</del> -->
        </h3>
        <div class="product-rating">
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star"></i>
-        <i class="fa fa-star-o empty"></i>
+        <i class="fa fa-star{% if pick.avaregereview < 1%}-o empty{% endif%}"></i>
+        <i class="fa fa-star{% if pick.avaregereview < 2%}-o empty{% endif%}"></i>
+        <i class="fa fa-star{% if pick.avaregereview < 3%}-o empty{% endif%}"></i>
+        <i class="fa fa-star{% if pick.avaregereview < 4%}-o empty{% endif%}"></i>
+        <i class="fa fa-star{% if pick.avaregereview < 5%}-o empty{% endif%}"></i>
+        {{ pick.avaregereview }} / {{ pick.countreview }}
        </div>
-       <h2 class="product-name"><a href="#">{{ pick.title|truncatewords:10 }}</a></h2>
+       <h2 class="product-name">
+        <a href="{{ pick.get_absolute_url }}">{{ pick.title|truncatewords:10 }}</a>
+       </h2>
        <div class="product-btns">
         <button class="main-btn icon-btn"><i class="fa fa-heart"></i></button>
         <button class="main-btn icon-btn"><i class="fa fa-exchange"></i></button>

@@ -10,6 +10,8 @@ To Create a Full Ecommerce Website with Django
 
 > - <a href="#search">4. Search Functionality </a>
 
+> - <a href="#detail">5. Product Details Page Dynamic </a>
+
 
 ## 1. Category & Product Model Setup <a href="" name="model"> - </a>
 
@@ -213,6 +215,8 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     amount = models.IntegerField(default=0)
     minamount = models.IntegerField()
+    overview = HTMLField()
+    product_description = HTMLField()
     detail = HTMLField()
     label = models.CharField(max_length=20, blank=True, choices=LABEL)
     slug = models.SlugField(null=False, unique=True)
@@ -711,6 +715,425 @@ urlpatterns = [
 
 1. Must User This ID > templates > partials > _header.html- `<input id="query" name="query" class="input search-input" value="{{query}}" type="text" placeholder="Enter your keyword">`
 
+## 5. Product Details Page Dynamic <a href="" name="detail"> - </a>
+
+> - <a href="#p_details">I. Show Product Details </a>
+
+> - <a href="#c_details">II. Product Comment System </a>
+
+### I. Show Product Details <a href="" name="p_details"> - </a>
+
+* product > views.py 
+
+```py
+def productDetail(request, id, slug):
+    product = get_object_or_404(Product, id=id, slug=slug)
+    images = Images.objects.filter(product=product)
+    product_pick = Product.objects.filter(status='Published').order_by('?')[:4]
+    context = {
+        'product': product,
+        'images': images,
+        'product_pick': product_pick,
+    }
+    return render(request, 'product/product_detail.html', context)
+```
+
+* product > urls.py
+
+```py
+urlpatterns = [
+    path('<str:id>/<slug:slug>', views.productDetail, name='product_detail'),
+]
+```
+
+* templates > product > product_detail.html
+
+```html
+<div class="col-md-6">
+    <div id="product-main-view">
+        <div class="product-view">
+            <img src="{{ product.imageURL }}" height="550px" alt="">
+        </div>
+        {% if images %}
+        {% for image in images %}
+        <div class="product-view">
+            <img src="{{ image.image.url }}" height="550px" alt="">
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <div id="product-view">
+        <div class="product-view">
+            <img src="{{ product.imageURL }}" width="120px" height="120px" alt="">
+        </div>
+        {% if images %}
+        {% for image in images %}
+        <div class="product-view">
+            <img src="{{ image.image.url }}" width="120px" height="120px" alt="">
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+
+<div class="col-md-6">
+    <div class="product-body">
+        <div class="product-label">
+            {% if product.label %}
+            <span>{{ product.label }}</span>
+            {% endif %}
+        </div>
+        <h2 class="product-name">{{ product.title }}</h2>
+        <h3 class="product-price">${{ product.price }}</h3>
+        <div>
+            <div class="product-rating">
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star-o empty"></i>
+            </div>
+            <a href="#">3 Review(s) / Add Review</a>
+        </div>
+        <p><strong>Availability:</strong> In Stock</p>
+        <p><strong>Brand:</strong> E-SHOP</p>
+        <p>
+            {{ product.overview|safe }}
+        </p>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="product-tab">
+        <ul class="tab-nav">
+            <li class="active"><a data-toggle="tab" href="#tab1">Description</a></li>
+            <li><a data-toggle="tab" href="#tab2">Details</a></li>
+            <li><a data-toggle="tab" href="#tab3">Reviews (3)</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="tab1" class="tab-pane fade in active">
+                <p>{{ product.product_description|safe }}</p>
+            </div>
+            <div id="tab2" class="tab-pane fade in">
+                {{ product.detail|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% for pick in product_pick %}
+<div class="col-md-3 col-sm-6 col-xs-6">
+    <div class="product product-single">
+        <div class="product-thumb">
+            <div class="product-label">
+                {% if pick.label %}
+                <span>{{ pick.label }}</span>
+                {% endif %}
+            </div>
+            <a href="{{ pick.get_absolute_url }}" class="main-btn quick-view">
+                <i class="fa fa-search-plus"></i> Quick view
+            </a>
+            <img src="{{ pick.imageURL }}" height="300px" width="100%" alt="">
+        </div>
+        <div class="product-body">
+            <h3 class="product-price">${{ pick.price }}
+            </h3>
+            <div class="product-rating">
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star-o empty"></i>
+            </div>
+            <h2 class="product-name">
+                <a href="{{ pick.get_absolute_url }}">
+                    {{ pick.title|truncatewords:10 }}
+                </a>
+            </h2>
+            <div class="product-btns">
+                <button class="main-btn icon-btn"><i class="fa fa-heart"></i></button>
+                <button class="main-btn icon-btn"><i class="fa fa-exchange"></i></button>
+                <button class="primary-btn add-to-cart">
+                    <i class="fa fa-shopping-cart"></i> Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+```
+
+1. Link To Product Details Page -`<a href="{{ product.get_absolute_url }}"></a>`
+
+### II. Product Comment System <a href="" name="c_details"> - </a>
+
+
+> - <a href="#m_comment">I. Comment Model & Form Setup </a>
+
+> - <a href="#v_comment">II. Create Views & URL </a>
+
+> - <a href="#f_comment">III. Show Comment Detail & Form Setup </a>
+
+### I. Comment Model & Form Setup <a href="" name="m_comment"> - </a>
+
+* product > models.py
+
+```py
+from django.contrib.auth.models import User
+from django.forms import ModelForm
+
+
+class Comment(models.Model):
+    STATUS = (
+        ('New', 'New'),
+        ('True', 'True'),
+        ('False', 'False'),
+    )
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=200, blank=True)
+    comment = models.CharField(max_length=400, blank=True)
+    rate = models.IntegerField(default=1)
+    ip = models.CharField(max_length=20, blank=True)
+    status = models.CharField(max_length=10, choices=STATUS, default='New')
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.subject
+    class Meta:
+        ordering = ['-id']
+
+
+class CommentForm(ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['subject', 'comment', 'rate']
+
+```
+
+* product > admin.py
+
+```py
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'comment', 'status', 'create_at']
+    list_filter = ['status']
+    readonly_fields = ('__str__', 'comment', 'subject', 'ip', 'user', 'product', 'rate', 'id')
+
+    class Meta:
+        model = Comment
+
+
+admin.site.register(Comment, CommentAdmin)
+```
+1. Run Command - `python manage.py makemigrations` & `python manage.py migrate`
+
+
+### II. Create Views & URL <a href="" name="v_comment"> - </a>
+
+* product > views.py
+
+```py
+def productDetail(request, id, slug):
+    product = get_object_or_404(Product, id=id, slug=slug)
+    comments = Comment.objects.filter(product=product)
+    paginator = Paginator(comments, 5)
+    page_number = request.GET.get('page', 1)
+    comment_page = paginator.get_page(page_number)
+    if comment_page.has_next():
+        next_url = f'?page={comment_page.next_page_number()}'
+    else:
+        next_url = ''
+    if comment_page.has_previous():
+        prev_url = f'?page={comment_page.previous_page_number()}'
+    else:
+        prev_url = ''
+    context = {
+        'product': product,
+        'comment_page': comment_page,
+        'next_page_url': next_url,
+        'prev_page_url': prev_url,
+
+    }
+    return render(request, 'product/product_detail.html', context)
+
+
+def addComment(request, id, slug):
+    url = request.META.get('HTTP_REFERER')
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            data = Comment()
+            data.subject = form.cleaned_data['subject']
+            data.comment = form.cleaned_data['comment']
+            data.rate = form.cleaned_data['rate']
+            data.ip = request.META.get('REMOTE_ADDR')
+            data.product_id = id
+            current_user = request.user
+            data.user_id = current_user.id
+            data.save()
+            messages.success(request, "Your review has been sent. Thank you for your interest.")
+            return HttpResponseRedirect(url)
+
+    return HttpResponseRedirect(url)
+```
+
+* product > urls.py
+
+```py
+urlpatterns = [
+    path('addcomment/<str:id>/<slug:slug>/', views.addComment, name='addcomment'),
+]
+
+```
+
+### III. Show Comment Detail & Form Setup <a href="" name="f_comment"> - </a>
+
+
+* product > models.py
+
+```py
+class Product(models.Model):
+
+    @property
+    def avaregereview(self):
+        reviews = Comment.objects.filter(product=self).aggregate(avarage=Avg('rate'))
+        avg = 0
+        if reviews["avarage"] is not None:
+            avg = float(reviews["avarage"])
+        return avg
+
+    @property
+    def countreview(self):
+        reviews = Comment.objects.filter(product=self).aggregate(count=Count('id'))
+        cnt = 0
+        if reviews["count"] is not None:
+            cnt = int(reviews["count"])
+        return cnt
+```
+
+* templates > product > product_detail.html
+
+1. Comment Form Setup In Template
+
+```html
+<form class="review-form" action="{% url 'addcomment' product.id product.slug %}" method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+        <input class="input" name="subject" type="text" placeholder="Your Subject" required />
+    </div>
+    <div class="form-group">
+        <textarea class="input" name="comment" placeholder="Your review" required></textarea>
+    </div>
+    <div class="form-group">
+        <div class="input-rating">
+            <strong class="text-uppercase">Your Rating: </strong>
+            <div class="stars">
+                <input type="radio" id="star5" name="rate" value="5" />
+                <label for="star5"></label>
+                <input type="radio" id="star4" name="rate" value="4" />
+                <label for="star4"></label>
+                <input type="radio" id="star3" name="rate" value="3" />
+                <label for="star3"></label>
+                <input type="radio" id="star2" name="rate" value="2" />
+                <label for="star2"></label>
+                <input type="radio" id="star1" name="rate" value="1" />
+                <label for="star1"></label>
+            </div>
+        </div>
+    </div>
+    
+    {% if user.is_authenticated %}
+        <button class="primary-btn">Submit</button>
+    {% else %}
+        <p>You must be Logged in to post a review</p>
+    {% endif %}
+    
+</form>
+```
+
+2. Show Comment With Pagination In Template
+
+```html
+<ul class="tab-nav">
+    <li><a data-toggle="tab" href="#tab3">Reviews ( {{ product.countreview }} )</a></li>
+</ul>
+
+<div class="product-reviews">
+
+    {% for comment in  comment_page.object_list %}
+    <div class="single-review">
+        <div class="review-heading">
+            <div>
+                <a href="#">
+                    <i class="fa fa-user-o"></i> {{ comment.user.username }}
+                </a>
+            </div>
+            <div><a href="#">
+                <i class="fa fa-clock-o"></i> {{ comment.create_at }}</a>
+            </div>
+            <div class="review-rating pull-right">
+                <i class="fa fa-star {% if comment.rate < 1 %}-o empty {% endif %}"></i>
+                <i class="fa fa-star {% if comment.rate < 2 %}-o empty {% endif %}"></i>
+                <i class="fa fa-star {% if comment.rate < 3 %}-o empty {% endif %}"></i>
+                <i class="fa fa-star {% if comment.rate < 4 %}-o empty {% endif %}"></i>
+                <i class="fa fa-star{% if comment.rate < 5 %}-o empty {% endif %}"></i>
+            </div>
+        </div>
+        <div class="review-body">
+            <p> <b> {{ comment.subject }}</b> </p>
+        </div>
+        <div class="review-body">
+            <p>{{ comment.comment }}</p>
+        </div>
+    </div>
+    {% endfor %}
+    <nav>
+        <ul class="pagination">
+            {% if prev_page_url %}
+            <li>
+                <a href="{{ prev_page_url }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+            {% for n in comment_page.paginator.page_range %}
+            {% if comment_page.number == n %}
+            <li class="active">
+                <a href="?page={{ n }}">{{ n }}</a>
+            </li>
+            {% elif n > comment_page.number|add:-3 and n < comment_page.number|add:3 %}
+            <li><a href="?page={{ n }}">{{ n }}</a></li>
+            {% endif %}
+            {% endfor %}
+            {% if next_page_url %}
+            <li>
+                <a href="{{ next_page_url }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+```
+
+3. Show Comment Average In Template (home/product.html, home/search.html, product/category.html)
+
+```html
+<div class="product-rating">
+    <i class="fa fa-star{% if product.avaregereview < 1%}-o empty{% endif%}"></i>
+    <i class="fa fa-star{% if product.avaregereview < 2%}-o empty{% endif%}"></i>
+    <i class="fa fa-star{% if product.avaregereview < 3%}-o empty{% endif%}"></i>
+    <i class="fa fa-star{% if product.avaregereview < 4%}-o empty{% endif%}"></i>
+    <i class="fa fa-star{% if product.avaregereview < 5%}-o empty{% endif%}"></i>
+    {{ product.avaregereview }} / {{ product.countreview }}
+</div>
+
+```
 
 
 ## Getting started

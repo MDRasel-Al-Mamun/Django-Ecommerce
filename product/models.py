@@ -4,6 +4,10 @@ from django.urls import reverse
 from mptt.models import MPTTModel
 from mptt.fields import TreeForeignKey
 from django.utils.safestring import mark_safe
+from django.contrib.auth.models import User
+from django.forms import ModelForm
+from django.db.models import Avg, Count
+
 
 class Category(MPTTModel):
     STATUS = (
@@ -61,6 +65,8 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     amount = models.IntegerField(default=0)
     minamount = models.IntegerField()
+    overview = HTMLField()
+    product_description = HTMLField()
     detail = HTMLField()
     label = models.CharField(max_length=20, blank=True, choices=LABEL)
     slug = models.SlugField(null=False, unique=True)
@@ -88,6 +94,22 @@ class Product(models.Model):
             url = ''
         return url
 
+    @property
+    def avaregereview(self):
+        reviews = Comment.objects.filter(product=self).aggregate(avarage=Avg('rate'))
+        avg = 0
+        if reviews["avarage"] is not None:
+            avg = float(reviews["avarage"])
+        return avg
+
+    @property
+    def countreview(self):
+        reviews = Comment.objects.filter(product=self).aggregate(count=Count('id'))
+        cnt = 0
+        if reviews["count"] is not None:
+            cnt = int(reviews["count"])
+        return cnt
+
 
 class Images(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -99,3 +121,31 @@ class Images(models.Model):
 
     class Meta:
         verbose_name_plural = 'images'
+
+
+class Comment(models.Model):
+    STATUS = (
+        ('New', 'New'),
+        ('True', 'True'),
+        ('False', 'False'),
+    )
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=200, blank=True)
+    comment = models.CharField(max_length=400, blank=True)
+    rate = models.IntegerField(default=1)
+    ip = models.CharField(max_length=20, blank=True)
+    status = models.CharField(max_length=10, choices=STATUS, default='New')
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.subject
+    class Meta:
+        ordering = ['-id']
+
+
+class CommentForm(ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['subject', 'comment', 'rate']
