@@ -6,17 +6,19 @@ To Create a Full Ecommerce Website with Django
 
 > - <a href="#category">2. Show All Nested Category In Navbar </a>
 
+> - <a href="#products">3. Show All Products </a>
+
 
 ## 1. Category & Product Model Setup <a href="" name="model"> - </a>
 
-> - <a href="#category">I. Nested Category Model with MPTT </a>
+> - <a href="#category_model">I. Nested Category Model with MPTT </a>
 
 > - <a href="#tinymce">II. Install TinyMCE Editor </a>
 
 > - <a href="#product">III. Create Product Model with Multiple Images </a>
 
 
-### I. Nested Category Model with MPTT <a href="" name="category"> - </a>
+### I. Nested Category Model with MPTT <a href="" name="category_model"> - </a>
 
 1. Create a product app `python manage.py startapp product`
 
@@ -343,6 +345,174 @@ def categorylist():
     </ul>
 </div>
 ```
+
+
+## 3. Show All Products <a href="" name="products"> - </a>
+
+> - <a href="#h_products">I. Show Products In Homepage </a>
+
+> - <a href="#c_products">II. Show Category Wize Products  </a>
+
+### I. Show Products In Homepage <a href="" name="h_products"> - </a>
+
+* home > views.py 
+
+```python
+from datetime import datetime, timedelta
+from django.shortcuts import render
+from product.models import Product, Category, Images
+
+
+def homeView(request):
+    page = 'home'
+    day = datetime.now() - timedelta(hours=24)
+    products = Product.objects.filter(create_at__gte=day, status='Published').order_by('-id')[:10]
+    product_latest = Product.objects.filter(status='Published').order_by('-id')[:4]
+    product_pick = Product.objects.filter(status='Published').order_by('?')[:4]
+    context = {
+        'page': page,
+        'products': products,
+        'product_latest': product_latest,
+        'product_pick': product_pick,
+    }
+    return render(request, 'home/index.html', context)
+
+```
+
+* templates > home > product.html
+
+```html
+{% if products %}
+
+{% for product in products %}
+<div class="product product-single">
+    <div class="product-thumb">
+        <div class="product-label">
+            {% if product.label %}
+                <span>{{ product.label }}</span>
+            {% endif %}
+        </div>
+        <button class="main-btn quick-view">
+            <i class="fa fa-search-plus"></i> Quick view
+        </button>
+        <img src="{{ product.imageURL }}" height="300px" width="100%" alt="">
+    </div>
+    <div class="product-body">
+        <h3 class="product-price">${{ product.price }}</h3>
+        <div class="product-rating">
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star-o empty"></i>
+        </div>
+        <h3 class="product-name">
+            <a href="#">{{ product.title|truncatewords:10 }}</a>
+        </h3>
+        <div class="product-btns">
+            <button class="main-btn icon-btn"><i class="fa fa-heart"></i></button>
+            <button class="main-btn icon-btn"><i class="fa fa-exchange"></i></button>
+            <button class="primary-btn add-to-cart"><i class="fa fa-shopping-cart"></i> Add to Cart</button>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+    <h2>There are No Products</h2>
+{% endif %}
+```
+
+### II. Show Category Wize Products <a href="" name="c_products"> - </a>
+
+1. Create File > templates > product - `category.html`
+
+* product > views.py 
+
+```python
+from .models import Product, Category, Images
+from django.shortcuts import render, get_object_or_404
+
+
+def categoryView(request, id, slug):
+    category = get_object_or_404(Category, id=id, slug=slug)
+    products = Product.objects.filter(category=category, status='Published')
+    context = {
+        'category': category,
+        'products': products,
+    }
+    return render(request, 'product/category.html', context)
+
+```
+
+* blog > urls.py 
+
+```python
+from django.urls import path
+from .import views
+
+urlpatterns = [
+    path('category/<str:id>/<slug:slug>/', views.categoryView, name="category"),
+]
+
+```
+
+* templates > product > categoty.html
+
+```html
+{% if products %}
+
+{% for product in products %}
+<div class="col-md-4 col-sm-6 col-xs-6">
+    <div class="product product-single">
+        <div class="product-thumb">
+            <div class="product-label">
+            {% if product.label %}
+                <span>{{ product.label }}</span>
+            {% endif %}
+            </div>
+            <button class="main-btn quick-view">
+                <i class="fa fa-search-plus"></i> Quick view
+            </button>
+            <img src="{{ product.imageURL }}" width="100%" height="300px" alt="">
+        </div>
+        <div class="product-body">
+            <h3 class="product-price">${{ product.price }}</h3>
+            <div class="product-rating">
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star-o empty"></i>
+            </div>
+            <h2 class="product-name">
+                <a href="#">{{ product.title|truncatewords:10 }}</a>
+            </h2>
+            <div class="product-btns">
+                <button class="main-btn icon-btn"><i class="fa fa-heart"></i></button>
+                <button class="main-btn icon-btn"><i class="fa fa-exchange"></i></button>
+                <button class="primary-btn add-to-cart">
+                    <i class="fa fa-shopping-cart"></i>Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<h2>There are No Products</h2>
+{% endif %}
+
+```
+
+1. Link to the Category page > partials > _navbar.html - `<a href="{{ node.get_absolute_url }}" </a>`
+
+
+
+
+
+
 ## Getting started
 
 Steps:

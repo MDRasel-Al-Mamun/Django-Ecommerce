@@ -7,15 +7,18 @@
 <div id="navigation">
  <div class="container">
   <div id="responsive-nav">
+   {% if page %}
    <div class="category-nav">
+    {% else %}
+    <div class="category-nav show-on-click">
+     {% endif %}
     <span class="category-header">Categories <i class="fa fa-list"></i></span>
     {% categorylist as category %}
 
     <ul class="category-list">
      {% recursetree category %}
      <li class="dropdown side-dropdown">
-      <a class="dropdown-toggle" {% if not node.is_leaf_node %}data-toggle="dropdown" aria-expanded="true"
-       {% endif %}>{{ node.title }}
+      <a href="{{ node.get_absolute_url }}" class="dropdown-toggle" {% if not node.is_leaf_node %}data-toggle="dropdown" aria-expanded="true"  {% endif %}>{{ node.title }}
        {% if not node.is_leaf_node %} <i class="fa fa-angle-right"></i> {% endif %}
       </a>
       <div class="custom-menu">
@@ -24,7 +27,7 @@
         <h3 class="list-links-title" style="padding-bottom: 20px;">
          All {{ node.title }}
         </h3>
-        <a href="#">{{ children }}</a>
+        <a href="">{{ children }}</a>
        </ul>
        {% endif %}
        <hr class="hidden-md hidden-lg">
@@ -37,7 +40,7 @@
    <div class="menu-nav">
     <span class="menu-header">Menu <i class="fa fa-bars"></i></span>
     <ul class="menu-list">
-     <li><a href="#">Home</a></li>
+     <li><a href="{% url 'home' %}">Home</a></li>
      <li><a href="#">About</a></li>
      <li><a href="#">Shop</a></li>
      <li><a href="#">Contact</a></li>
