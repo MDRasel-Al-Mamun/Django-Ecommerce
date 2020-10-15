@@ -145,3 +145,17 @@
   }
 
 })(jQuery);
+
+ $(function () {
+  $("#query").autocomplete({
+   source: "/search_auto/",
+   select: function (event, ui) {
+    AutoCompleteSelectHandler(event, ui)
+   },
+   minLength: 2,
+  });
+ });
+
+ function AutoCompleteSelectHandler(event, ui) {
+  var selectedObj = ui.item;
+ }

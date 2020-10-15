@@ -18,7 +18,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'home.apps.HomeConfig',
     'product.apps.ProductConfig',
-    'checkout.apps.CheckoutConfig',
+    'order.apps.OrderConfig',
     'authentication.apps.AuthenticationConfig',
 
     'mptt',

@@ -8,6 +8,8 @@ To Create a Full Ecommerce Website with Django
 
 > - <a href="#products">3. Show All Products </a>
 
+> - <a href="#search">4. Search Functionality </a>
+
 
 ## 1. Category & Product Model Setup <a href="" name="model"> - </a>
 
@@ -509,7 +511,205 @@ urlpatterns = [
 1. Link to the Category page > partials > _navbar.html - `<a href="{{ node.get_absolute_url }}" </a>`
 
 
+## 4. Search Functionality <a href="" name="search"> - </a>
 
+> - <a href="#b_search">I. Basic Search Products </a>
+
+> - <a href="#a_search">II. Auto Search with Ajax </a>
+
+### I. Basic Search Products <a href="" name="b_search"> - </a>
+
+
+1. Create Py File > home > `forms.py`
+2. Create File > templates > home - `search.html`
+
+
+* home > forms.py 
+
+```python
+from django import forms
+
+
+class SearchForm(forms.Form):
+    query = forms.CharField(max_length=100)
+    catid = forms.IntegerField()
+```
+
+* home > views.py
+
+```py
+from .forms import SearchForm
+from django.http import HttpResponseRedirect
+
+
+def searchView(request):
+    if request.method == 'POST':
+        form = SearchForm(request.POST)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            catid = form.cleaned_data['catid']
+            if catid == 0:
+                products = Product.objects.filter(title__icontains=query)
+            else:
+                products = Product.objects.filter(title__icontains=query, category_id=catid)
+            context = {
+                'products': products,
+                'query': query,
+            }
+            return render(request, 'home/search.html', context)
+
+    return HttpResponseRedirect('/')
+```
+
+* home > urls.py
+
+```py
+urlpatterns = [
+    path('search/', views.searchView, name='search'),
+]
+```
+
+* templates > partials > _header.html
+
+```html
+{% load mptt_tags %}
+
+{% load ecommercetags %}
+
+<div class="header-search">
+    <form action="/search/" method="POST">
+    {% csrf_token %}
+        <input id="query" name="query" class="input search-input" value="{{query}}" type="text" placeholder="Enter your keyword">
+    {% categorylist as category %}
+        <select name="catid" class="input search-categories">
+            <option value="0">All Categories</option>
+        {% recursetree category %}
+            {% if node.is_leaf_node %}
+                <option value="{{ node.id }}">{{ node.title }}</option>
+            {% endif %}
+            {% if not node.is_leaf_node %}
+                <optgroup label="{{ node.title }}">{{ children }}</optgroup>
+            {% endif %}
+        {% endrecursetree %}
+        </select>
+        <button type="submit" class="search-btn"><i class="fa fa-search"></i></button>
+    </form>
+</div>
+```
+
+* templates > home > search.html
+
+```html
+{% if products %}
+
+{% for product in products %}
+<div class="col-md-4 col-sm-6 col-xs-6">
+    <div class="product product-single">
+        <div class="product-thumb">
+            <div class="product-label">
+            {% if product.label %}
+                <span>{{ product.label }}</span>
+            {% endif %}
+            </div>
+                <button class="main-btn quick-view">
+                    <i class="fa fa-search-plus"></i> Quick view
+                </button>
+            <img src="{{ product.imageURL }}" width="100%" height="300px" alt="">
+        </div>
+        <div class="product-body">
+            <h3 class="product-price">${{ product.price }}</h3>
+            <div class="product-rating">
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star-o empty"></i>
+            </div>
+            <h2 class="product-name">
+                <a href="#">{{ product.title|truncatewords:10 }}</a>
+            </h2>
+            <div class="product-btns">
+                <button class="main-btn icon-btn"><i class="fa fa-heart"></i></button>
+                <button class="main-btn icon-btn"><i class="fa fa-exchange"></i></button>
+                <button class="primary-btn add-to-cart">
+                    <i class="fa fa-shopping-cart"></i>Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+    <h2>There are No Products</h2>
+{% endif %}
+
+```
+
+### II. Auto Search with Ajax <a href="" name="a_search"> - </a>
+
+1. Add CSS & JS file - static > css/js - `jquery-ui.min.css & jquery-ui.min.js`
+
+2. Link to HTML file - templates > base > css.html/scripts.html -
+
+   `<link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">`
+
+   `<script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>`
+
+
+* home > views.py 
+
+```python
+import json
+from django.http import HttpResponse
+
+
+def searchAuto(request):
+    if request.is_ajax():
+        q = request.GET.get('term', '')
+        products = Product.objects.filter(title__icontains=q)
+
+        results = []
+        for product in products:
+            product_json = {}
+            product_json = product.title
+            results.append(product_json)
+        data = json.dumps(results)
+    else:
+        data = 'fail'
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
+
+```
+
+* home > urls.py
+
+```py
+urlpatterns = [
+    path('search_auto/', views.searchAuto, name='search_auto'),
+]
+
+```
+
+* static > js > main.js
+
+```js
+ $(function () {
+  $("#query").autocomplete({
+   source: "/search_auto/",
+   select: function (event, ui) {
+    AutoCompleteSelectHandler(event, ui)
+   },
+   minLength: 2,
+  });
+ });
+
+ function AutoCompleteSelectHandler(event, ui) {
+  var selectedObj = ui.item;
+ }
+```
+
+1. Must User This ID > templates > partials > _header.html- `<input id="query" name="query" class="input search-input" value="{{query}}" type="text" placeholder="Enter your keyword">`
 
 
 
