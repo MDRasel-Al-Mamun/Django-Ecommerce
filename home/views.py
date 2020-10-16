@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timedelta
+from django.utils import timezone
 from django.shortcuts import render
 from product.models import Product, Category, Images
 from .forms import SearchForm
@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 def homeView(request):
     page = 'home'
-    day = datetime.now() - timedelta(hours=24)
+    day = timezone.now() - timezone.timedelta(hours=48)
     products = Product.objects.filter(create_at__gte=day, status='Published').order_by('-id')[:10]
     product_latest = Product.objects.filter(status='Published').order_by('-id')[:4]
     product_pick = Product.objects.filter(status='Published').order_by('?')[:4]

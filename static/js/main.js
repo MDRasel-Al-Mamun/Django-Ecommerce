@@ -1,5 +1,5 @@
-(function($) {
-  "use strict"
+(function ($) {
+  'use strict';
 
   // NAVIGATION
   var responsiveNav = $('#responsive-nav'),
@@ -8,17 +8,17 @@
     menuToggle = $('#responsive-nav .menu-nav .menu-header'),
     menuList = $('#responsive-nav .menu-nav .menu-list');
 
-  catToggle.on('click', function() {
+  catToggle.on('click', function () {
     menuList.removeClass('open');
     catList.toggleClass('open');
   });
 
-  menuToggle.on('click', function() {
+  menuToggle.on('click', function () {
     catList.removeClass('open');
     menuList.toggleClass('open');
   });
 
-  $(document).click(function(event) {
+  $(document).click(function (event) {
     if (!$(event.target).closest(responsiveNav).length) {
       if (responsiveNav.hasClass('open')) {
         responsiveNav.removeClass('open');
@@ -53,12 +53,13 @@
     dots: true,
     arrows: false,
     appendDots: '.product-slick-dots-1',
-    responsive: [{
+    responsive: [
+      {
         breakpoint: 991,
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
-        }
+        },
       },
       {
         breakpoint: 480,
@@ -67,9 +68,9 @@
           arrows: true,
           slidesToShow: 1,
           slidesToScroll: 1,
-        }
+        },
       },
-    ]
+    ],
   });
 
   $('#product-slick-2').slick({
@@ -81,12 +82,13 @@
     dots: true,
     arrows: false,
     appendDots: '.product-slick-dots-2',
-    responsive: [{
+    responsive: [
+      {
         breakpoint: 991,
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
-        }
+        },
       },
       {
         breakpoint: 480,
@@ -95,9 +97,9 @@
           arrows: true,
           slidesToShow: 1,
           slidesToScroll: 1,
-        }
+        },
       },
-    ]
+    ],
   });
 
   // PRODUCT DETAILS SLICK
@@ -130,32 +132,153 @@
       connect: true,
       tooltips: [true, true],
       format: {
-        to: function(value) {
+        to: function (value) {
           return value.toFixed(2) + '$';
         },
-        from: function(value) {
-          return value
-        }
+        from: function (value) {
+          return value;
+        },
       },
       range: {
-        'min': 1,
-        'max': 999
-      }
+        min: 1,
+        max: 999,
+      },
     });
   }
-
 })(jQuery);
 
- $(function () {
-  $("#query").autocomplete({
-   source: "/search_auto/",
-   select: function (event, ui) {
-    AutoCompleteSelectHandler(event, ui)
-   },
-   minLength: 2,
+$(function () {
+  $('#query').autocomplete({
+    source: '/search_auto/',
+    select: function (event, ui) {
+      AutoCompleteSelectHandler(event, ui);
+    },
+    minLength: 2,
   });
- });
+});
 
- function AutoCompleteSelectHandler(event, ui) {
+function AutoCompleteSelectHandler(event, ui) {
   var selectedObj = ui.item;
- }
+}
+
+$(document).ready(function () {
+  $('#validationForm').validate({
+    rules: {
+      first_name: 'required',
+      last_name: 'required',
+      username: {
+        required: true,
+        minlength: 6,
+      },
+      l_username: 'required',
+      password: {
+        required: true,
+        minlength: 6,
+      },
+      l_password: 'required',
+      confirm_password: {
+        required: true,
+        equalTo: '#password',
+      },
+      email: {
+        required: true,
+        email: true,
+      },
+      agree: 'required',
+    },
+    messages: {
+      first_name: 'Please enter your first name',
+      last_name: 'Please enter your last name',
+      username: {
+        required: 'Please enter a username',
+        minlength: 'Your username must consist of at least 6 characters',
+      },
+      l_username: 'Please enter a username',
+      password: {
+        required: 'Please provide a password',
+        minlength: 'Your password must be at least 6 characters long',
+      },
+      l_password: 'Please provide a password',
+      confirm_password: {
+        required: 'Please provide a password',
+        equalTo: 'Please enter the same password as above',
+      },
+      email: 'Please enter a valid email address',
+      agree: 'Please accept our policy',
+    },
+    errorElement: 'em',
+    errorPlacement: function (error, element) {
+      error.addClass('help-block');
+
+      if (element.prop('type') === 'checkbox') {
+        error.insertAfter(element.parent('label'));
+      } else {
+        error.insertAfter(element);
+      }
+    },
+    highlight: function (element, errorClass, validClass) {
+      $(element)
+        .parents('.form-group')
+        .addClass('has-error')
+        .removeClass('has-success');
+    },
+    unhighlight: function (element, errorClass, validClass) {
+      $(element)
+        .parents('.form-group')
+        .addClass('has-success')
+        .removeClass('has-error');
+    },
+  });
+  if ($.fn.passwordStrength) {
+    $('#password').passwordStrength({
+      minimumChars: 6,
+    });
+  }
+});
+
+
+const usernameField = document.querySelector('#usernameField');
+const feedBackArea = document.querySelector('.usernameFeedBackArea');
+const emailField = document.querySelector('#emailField');
+const emailFeedBackArea = document.querySelector('.emailFeedBackArea');
+
+usernameField.addEventListener('keyup', (e) => {
+  const usernameVal = e.target.value;
+  usernameField.classList.remove('has-error');
+  feedBackArea.style.display = 'none';
+  if (usernameVal.length > 0) {
+    fetch('/authentication/validate_username', {
+      body: JSON.stringify({ username: usernameVal }),
+      method: 'POST',
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.username_error) {
+          usernameField.classList.add('has-error');
+          feedBackArea.style.display = 'block';
+          feedBackArea.innerHTML = `<p style="color:#a94442";>${data.username_error}</p>`;
+        }
+      });
+  }
+});
+
+
+emailField.addEventListener('keyup', (e) => {
+  const emailVal = e.target.value;
+  emailField.classList.remove('has-error');
+  emailFeedBackArea.style.display = 'none';
+  if (emailVal.length > 0) {
+    fetch('/authentication/validate_email', {
+      body: JSON.stringify({ email: emailVal }),
+      method: 'POST',
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.email_error) {
+          emailField.classList.add('has-error');
+          emailFeedBackArea.style.display = 'block';
+          emailFeedBackArea.innerHTML = `<p style="color:#a94442";>${data.email_error}</p>`;
+        }
+      });
+  }
+});

@@ -1,0 +1,118 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block keywords %} {% endblock %}
+
+{% block description %} {% endblock %}
+
+{% block title %} Sign Up {% endblock %}
+
+{% block extrahead %} {% endblock %}
+
+{% block extrastyle %} {% endblock %}
+
+{% block header %} {% include 'partials/_header.html' %} {% endblock %}
+
+{% block navbar %} {% include 'partials/_navbar.html' %} {% endblock %}
+
+{% block content %}
+
+<div id="breadcrumb">
+ <div class="container">
+  <ul class="breadcrumb">
+   <li><a href="#">Home</a></li>
+   <li class="active">Signup</li>
+  </ul>
+ </div>
+</div>
+
+
+<div class="section">
+ <div class="container">
+  <div class="row">
+   {% if message %}
+   <div class="col-md-6 col-md-offset-3">
+    <div class="text-center">
+     <h1>
+      <span>Congratulations! {{ message }}</span>
+     </h1>
+     <h3 class="">
+      Your Account Successfully Created
+     </h3>
+     <h6>
+      To Active Your Account, A Confirmation Code has Send to Your Email Address
+     </h6>
+     <h3 class="">Please Go to Your Email</h3>
+     <a href="https://mail.google.com/" target="_blank" class="primary-btn">
+      Email Confiramation
+     </a>
+    </div>
+   </div>
+   {% else %}
+   <form id="validationForm" class="clearfix" action="{% url 'signup' %}" method="POST">
+    {% csrf_token %}
+    {% include 'partials/_messages.html' %}
+    <div class="col-md-6 col-md-offset-3">
+     <div class="billing-details">
+      <div class="section-title">
+       <h3 class="title">Sign Up</h3>
+      </div>
+      <div class="row">
+       <div class="col-md-6">
+        <div class="form-group">
+         <input class="input" type="text" name="first_name" placeholder="First Name">
+        </div>
+       </div>
+       <div class="col-md-6">
+        <div class="form-group">
+         <input class="input" type="text" name="last_name" placeholder="Last Name">
+        </div>
+       </div>
+      </div>
+      <div class="form-group">
+       <input class="input" type="text" id="usernameField" name="username" placeholder="Username">
+       <div class="usernameFeedBackArea has-error" style="display:none"></div>
+      </div>
+      <div class="form-group">
+       <input class="input" id="emailField" type="email" name="email" placeholder="Email">
+       <div class="emailFeedBackArea has-error" style="display:none"></div>
+      </div>
+      <div class="form-group">
+       <input class="input" id="password" type="password" name="password" placeholder="Password">
+      </div>
+      <div class="form-group">
+       <input class="input" type="password" name="confirm_password" placeholder="Re-enter Password">
+      </div>
+      <div class="form-group">
+       <div class="checkbox">
+        <label>
+         <input type="checkbox" id="agree" name="agree" value="agree" />Please agree to our policy
+        </label>
+       </div>
+      </div>
+      <button class="primary-btn">Sign Up</button>
+      <div style="padding-top: 10px;">
+       <p class="">Already have an account?
+        <a class="text-danger" href="{% url 'signin' %}">Sign In</a>
+       </p>
+      </div>
+      <hr>
+      <div class="">
+       <p class="">By clicking <em>Sign up</em> you agree to our
+        <a href="" class="text-danger" target="_blank">terms of service</a>
+       </p>
+      </div>
+     </div>
+    </div>
+   </form>
+   {% endif %}
+  </div>
+ </div>
+</div>
+
+{% endblock %}
+
+{% block footer %} {% include 'partials/_footer.html' %} {% endblock %}
+
+{% block extrascripts %} {% endblock %}

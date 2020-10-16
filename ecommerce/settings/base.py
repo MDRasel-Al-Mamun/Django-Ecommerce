@@ -1,5 +1,7 @@
 from pathlib import Path
 from decouple import config
+from django.contrib import messages
+
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -19,6 +21,7 @@ INSTALLED_APPS = [
     'home.apps.HomeConfig',
     'product.apps.ProductConfig',
     'order.apps.OrderConfig',
+    'customer.apps.CustomerConfig',
     'authentication.apps.AuthenticationConfig',
 
     'mptt',
@@ -83,6 +86,10 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS')
 EMAIL_PORT = config('EMAIL_PORT', cast=int)
+
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger'
+}
 
 
 TINYMCE_DEFAULT_CONFIG = {
