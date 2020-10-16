@@ -1,0 +1,116 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block keywords %} {% endblock %}
+
+{% block description %} {% endblock %}
+
+{% block title %} Profile | {{ profile.full_name }} {% endblock %}
+
+{% block extrahead %} {% endblock %}
+
+{% block extrastyle %} {% endblock %}
+
+{% block header %} {% include 'partials/_header.html' %} {% endblock %}
+
+{% block navbar %} {% include 'partials/_navbar.html' %} {% endblock %}
+
+{% block content %}
+<style>
+ .menu-profile li {
+  margin: 5px 0;
+ }
+</style>
+
+<div id="breadcrumb">
+ <div class="container">
+  <ul class="breadcrumb">
+   <li><a href="/">Home</a></li>
+   <li class="active">{{ profile.full_name }}</li>
+  </ul>
+ </div>
+</div>
+
+<div class="section">
+ <div class="container">
+  <div class="row">
+   {% include 'partials/_messages.html' %}
+   <div class="col-md-3">
+    <div class="billing-details">
+     <div class="section-title">
+      <h3 class="title">User Panel</h3>
+     </div>
+     <div class="">
+      <ul class="list-links menu-profile">
+       <li><a href="{% url 'profile' %}">User Profile</a></li>
+       <li><a href="">My Order Product</a></li>
+       <li><a href="">My Orders</a></li>
+       <li><a href="">My Comments</a></li>
+       <li><a href="">My Favorits</a></li>
+       <li><a href="">My Products</a></li>
+       <li><a href="{% url 'signout' %}">Sign Out</a></li>
+      </ul>
+     </div>
+    </div>
+   </div>
+
+   <div class="col-md-9">
+    <div class="billing-details">
+     <div class="section-title">
+      <h3 class="title">Profile Information</h3>
+     </div>
+    </div>
+    <table class="shopping-cart-table table">
+     <tr>
+      <th class="text-left">
+       <a href="{% url 'update' %}" class="primary-btn">Update Profile</a>
+       <a href="{% url 'change_password' %}" class="primary-btn">Change Password</a>
+      </th>
+      <td>
+       <img src="{{ profile.imageURL }}" height="150px" width="150px" class="img-circle">
+      </td>
+     </tr>
+     <tr>
+      <th class="text-left">Name Surname</th>
+      <td class="text-left">{{ profile.full_name }}</td>
+     </tr>
+     <tr>
+      <th class="text-left">Email</th>
+      <td class="text-left">{{ profile.user.email}}</td>
+     </tr>
+     <tr>
+      <th class="text-left">Phone</th>
+      <td class="text-left">{{ profile.phone}}</td>
+     </tr>
+     <tr>
+      <th class="text-left">Addres</th>
+      <td class="text-left">{{ profile.address}}</td>
+     </tr>
+     <tr>
+      <th class="text-left">City</th>
+      <td class="text-left">{{ profile.city}}</td>
+     </tr>
+     <tr>
+      <th class="text-left">State</th>
+      <td class="text-left">{{ profile.state}}</td>
+     </tr>
+     <tr>
+      <th class="text-left">Zip Code</th>
+      <td class="text-left">{{ profile.zipcode}}</td>
+     </tr>
+     <tr>
+      <th class="text-left">Country</th>
+      <td class="text-left">{{ profile.country}}</td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+</div>
+
+{% endblock %}
+
+{% block footer %} {% include 'partials/_footer.html' %} {% endblock %}
+
+{% block extrascripts %} {% endblock %}

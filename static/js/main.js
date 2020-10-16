@@ -176,6 +176,7 @@ $(document).ready(function () {
         minlength: 6,
       },
       l_password: 'required',
+      old_password: 'required',
       confirm_password: {
         required: true,
         equalTo: '#password',
@@ -199,8 +200,9 @@ $(document).ready(function () {
         minlength: 'Your password must be at least 6 characters long',
       },
       l_password: 'Please provide a password',
+      old_password: 'Please enter your old password password',
       confirm_password: {
-        required: 'Please provide a password',
+        required: 'Please confirm your password',
         equalTo: 'Please enter the same password as above',
       },
       email: 'Please enter a valid email address',
@@ -234,6 +236,11 @@ $(document).ready(function () {
       minimumChars: 6,
     });
   }
+  $('#fileupload').change(function (event) {
+    var x = URL.createObjectURL(event.target.files[0]);
+    $('#upload-img').attr('src', x);
+    console.log(event);
+  });
 });
 
 

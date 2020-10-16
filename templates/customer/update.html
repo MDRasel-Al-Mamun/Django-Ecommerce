@@ -1,0 +1,109 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block keywords %} {% endblock %}
+
+{% block description %} {% endblock %}
+
+{% block title %} Update Profile {% endblock %}
+
+{% block extrahead %} {% endblock %}
+
+{% block extrastyle %} {% endblock %}
+
+{% block header %} {% include 'partials/_header.html' %} {% endblock %}
+
+{% block navbar %} {% include 'partials/_navbar.html' %} {% endblock %}
+
+{% block content %}
+
+<div id="breadcrumb">
+ <div class="container">
+  <ul class="breadcrumb">
+   <li><a href="{% url 'home' %}">Home</a></li>
+   <li><a href="{% url 'profile' %}">Profile</a></li>
+   <li class="active">Update Profile</li>
+  </ul>
+ </div>
+</div>
+
+<div class="section">
+ <div class="container">
+  <div class="row">
+   <form id="validationForm" class="clearfix" method="POST" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% include 'partials/_messages.html' %}
+    <div class="col-md-8 col-md-offset-2">
+     <div class="billing-details">
+      <div class="section-title">
+       <h3 class="title">Update Profile</h3>
+      </div>
+      <div class="row">
+       <div class="col-md-8" style="margin-top: 30px;">
+        <div class="form-group">
+         <input class="input" type="text" name="first_name" placeholder="First Name" value="{{ user.first_name }}">
+        </div>
+        <div class="form-group">
+         <input class="input" type="text" name="last_name" placeholder="Last Name" value="{{ user.last_name }}">
+        </div>
+        <div class="form-group">
+         <input class="input" type="email" name="email" id="email" placeholder="Email" value="{{ user.email }}">
+        </div>
+       </div>
+       <div class="col-md-4">
+        <div class="profile-images-card">
+         <div class="profile-images">
+          <img src="{{values.imageURL}}" id="upload-img">
+         </div>
+         <div class="custom-file">
+          <label class="primary-btn btn-sm" for="fileupload"> <i class="fa fa-upload"></i>Upload Image</label>
+          <input type="file" name="image" value="{{values.image}}" id="fileupload">
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="form-group">
+       <input class="input" type="text" id="phone" name="phone" placeholder="Phone" value="{{values.phone}}">
+      </div>
+      <div class="form-group">
+       <input class="input" type="text" id="address" name="address" placeholder="Address" value="{{values.address}}">
+      </div>
+      <div class="row">
+       <div class="col-md-6">
+        <div class="form-group">
+         <input class="input" type="text" id="city" name="city" placeholder="City" value="{{values.city}}">
+        </div>
+       </div>
+       <div class="col-md-6">
+        <div class="form-group">
+         <input class="input" type="text" id="state" name="state" placeholder="State" value="{{values.state}}">
+        </div>
+       </div>
+      </div>
+      <div class="row">
+       <div class="col-md-6">
+        <div class="form-group">
+         <input class="input" type="text" id="country" name="country" placeholder="Country" value="{{values.country}}">
+        </div>
+       </div>
+       <div class="col-md-6">
+        <div class="form-group">
+         <input class="input" type="text" id="zipcode" name="zipcode" placeholder="Zip Code" value="{{values.zipcode}}">
+        </div>
+       </div>
+      </div>
+      <button type="submit" class="primary-btn">Update Profile</button>
+     </div>
+    </div>
+   </form>
+  </div>
+ </div>
+</div>
+
+
+{% endblock %}
+
+{% block footer %} {% include 'partials/_footer.html' %} {% endblock %}
+
+{% block extrascripts %} {% endblock %}

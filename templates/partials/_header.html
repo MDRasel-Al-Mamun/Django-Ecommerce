@@ -75,21 +75,26 @@
     <ul class="header-btns">
      <li class="header-account dropdown default-dropdown">
       <div class="dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="true">
-       <div class="header-btns-icon">
-        <i class="fa fa-user-o"></i>
-       </div>
        {% if user.is_authenticated %}
-       <strong class="text-uppercase">My Account 
+       <div class="header-btns-icon">
+        <img src="{{ request.user.userprofile.imageURL }}" height="40px" width="40px" alt="">
+       </div>
+       <strong class="text-uppercase">{{ request.user.userprofile.full_name }}
         <i class="fa fa-caret-down"></i>
        </strong>
        {% else %}
+        <div class="header-btns-icon">
+         <i class="fa fa-user-o"></i>
+        </div>
         <strong class="text-uppercase">Hi, Welcome !</strong>
        {% endif %}
       </div>
       {% if user.is_authenticated %}
       <a href="{% url 'signout' %}" class="text-uppercase">Sign Out</a>
       <ul class="custom-menu">
-       <li><a href="#"><i class="fa fa-user-o"></i> My Account</a></li>
+       <li>
+        <a href="{% url 'profile' %}"><i class="fa fa-user-o"></i> My Account</a>
+       </li>
        <li><a href="#"><i class="fa fa-heart-o"></i> My Wishlist</a></li>
        <li><a href="#"><i class="fa fa-exchange"></i> Compare</a></li>
        <li><a href="#"><i class="fa fa-check"></i> Checkout</a></li>

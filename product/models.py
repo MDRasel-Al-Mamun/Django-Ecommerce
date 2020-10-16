@@ -141,6 +141,9 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.subject
+
+    def full_name(self):
+        return self.user.first_name + ' ' + self.user.last_name
     class Meta:
         ordering = ['-id']
 

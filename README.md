@@ -14,6 +14,8 @@ To Create a Full Ecommerce Website with Django
 
 > - <a href="#authentication">6. Authentication System </a>
 
+> - <a href="#customer">7. Customer Profile Setup </a>
+
 
 ## 1. Category & Product Model Setup <a href="" name="model"> - </a>
 
@@ -2116,6 +2118,430 @@ urlpatterns = [
 ```django
 <a href="{% url 'reset_password' %}">Forgot password?</a>
 ```
+
+## 7. Customer Profile Setup <a href="" name="customer"> - </a>
+
+> - <a href="#c_profile">I. Create Customer Profile Model </a>
+
+> - <a href="#c_form">II. Update Customer Profile Form </a>
+
+> - <a href="#c_details">III. Show Profile Details </a>
+
+> - <a href="#c_password">IV. Change Password </a>
+
+
+### I. Create Customer Profile Model <a href="" name="c_profile"> - </a>
+
+1. Create a customer app `python manage.py startapp customer`
+
+2. Define app - ecommerce > settings > base.py - `'customer.apps.CustomerConfig'` 
+
+3. Create url - ecommerce > urls.py - `path('customer/', include('customer.urls')),`
+
+4. Create url file - `customer > urls.py`
+
+* customer > models.py  
+
+```python
+from django.db import models
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+from django.utils.safestring import mark_safe
+from django.db.models.signals import post_save
+
+
+def user_directory_path(instance, filename):
+    return 'user/avatars/{0}/{1}'.format(instance.user.id, filename)
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    address = models.CharField(max_length=200, blank=True)
+    city = models.CharField(blank=True, max_length=20)
+    state = models.CharField(blank=True, max_length=20)
+    country = models.CharField(blank=True, max_length=50)
+    zipcode = models.IntegerField(null=True, blank=True)
+    phone = models.CharField(blank=True, max_length=20)
+    image = models.FileField(upload_to=user_directory_path, default='user/user.png')
+
+    def __str__(self):
+        return self.user.username
+
+    def full_name(self):
+        return self.user.first_name + ' ' + self.user.last_name
+
+    def image_tag(self):
+        return mark_safe('<img src="{}" height="50"/>'.format(self.image.url))
+
+    image_tag.short_description = 'Image'
+
+    @property
+    def imageURL(self):
+        try:
+            url = self.image.url
+        except:
+            url = ''
+        return url
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+```
+* customer > admin.py
+
+```python
+from django.contrib import admin
+from .models import UserProfile
+
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'address', 'phone', 'image_tag']
+
+admin.site.register(UserProfile, UserProfileAdmin)
+```
+
+1. Create a folder `media_root > user`
+2. Set Default Image - media_root > user - `user.png`
+3. Run - `python manage.py makemigrations` & `pythone manage.py migrate`
+
+
+### II. Update Customer Profile Form  <a href="" name="c_form"> - </a>
+
+1. Create files - templates > customer - `profile.html` & `update.html`
+
+* customer > views.py 
+
+```python
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import UserProfile
+
+@login_required(login_url='signin')
+def profileView(request):
+    context = {
+
+    }
+    return render(request, 'customer/profile.html', context)
+
+
+@login_required(login_url='signin')
+def profileUpdate(request):
+    profile = UserProfile.objects.get(user__id=request.user.id)
+    values = UserProfile.objects.get(user__id=request.user.id)
+    context = {
+        'profile': profile,
+        'values': values
+    }
+    if request.method == 'POST':
+        first_name = request.POST["first_name"]
+        last_name = request.POST["last_name"]
+        email = request.POST["email"]
+        phone = request.POST["phone"]
+        address = request.POST["address"]
+        city = request.POST["city"]
+        state = request.POST["state"]
+        country = request.POST["country"]
+        zipcode = request.POST["zipcode"]
+
+        user = User.objects.get(id=request.user.id)
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.save()
+
+        values.address = address
+        values.phone = phone
+        values.city = city
+        values.state = state
+        values.country = country
+        values.zipcode = zipcode
+
+        values.save()
+        messages.success(request, 'Profile Update Successfully')
+
+        if "image" in request.FILES:
+            image = request.FILES["image"]
+            values.image = image
+            values.save()
+
+        return redirect('profile')
+    return render(request, 'customer/update.html', context)
+```
+
+* customer > urls.py 
+
+```python
+from django.urls import path
+from .import views
+
+urlpatterns = [
+    path('profile/', views.profileView, name='profile'),
+    path('profile_update/', views.profileUpdate, name='update'),
+]
+
+```
+
+* templates > customer > update.html
+
+```html
+
+<form id="validationForm" class="clearfix" method="POST" action="" enctype="multipart/form-data">
+{% csrf_token %}
+{% include 'partials/_messages.html' %}
+    <div class="col-md-8 col-md-offset-2">
+        <div class="billing-details">
+            <div class="section-title"><h3 class="title">Update Profile</h3></div>
+            <div class="row">
+                <div class="col-md-8" style="margin-top: 30px;">
+                    <div class="form-group">
+                        <input class="input" type="text" name="first_name" placeholder="First Name" value="{{ user.first_name }}">
+                    </div>
+                    <div class="form-group">
+                        <input class="input" type="text" name="last_name" placeholder="Last Name" value="{{ user.last_name }}">
+                    </div>
+                    <div class="form-group">
+                        <input class="input" type="email" name="email" id="email" placeholder="Email" value="{{ user.email }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                <div class="profile-images-card">
+                    <div class="profile-images">
+                        <img src="{{values.imageURL}}" id="upload-img">
+                    </div>
+                    <div class="custom-file">
+                        <label class="primary-btn btn-sm" for="fileupload"> 
+                            <i class="fa fa-upload"></i>Upload Image
+                        </label>
+                        <input type="file" name="image" value="{{values.image}}" id="fileupload">
+                    </div>
+                </div>  
+            </div>
+            <div class="form-group">
+                <input class="input" type="text" id="phone" name="phone" placeholder="Phone" value="{{values.phone}}">
+            </div>
+            <div class="form-group">
+                <input class="input" type="text" id="address" name="address" placeholder="Address" value="{{values.address}}">
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <input class="input" type="text" id="city" name="city" placeholder="City" value="{{values.city}}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <input class="input" type="text" id="state" name="state" placeholder="State" value="{{values.state}}">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <input class="input" type="text" id="country" name="country" placeholder="Country" value="{{values.country}}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <input class="input" type="text" id="zipcode" name="zipcode" placeholder="Zip Code" value="{{values.zipcode}}">
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="primary-btn">Update Profile</button>
+        </div>
+    </div>
+</form>
+```
+
+1. Image field on form are created with `Jquery & Bootstrap`
+
+2. static > js > main.js
+
+```js
+$(document).ready(function () {
+  $('#fileupload').change(function (event) {
+    var x = URL.createObjectURL(event.target.files[0]);
+    $('#upload-img').attr('src', x);
+    console.log(event);
+  });
+});
+```
+
+3. static > css > style.css 
+
+```css
+.profile-images-card {
+  margin: auto;
+  display: table;
+ }
+
+ .profile-images {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+ }
+
+ .profile-images img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+ }
+
+ .custom-file input[type='file'] {
+  display: none;
+ }
+
+ .custom-file label {
+  cursor: pointer;
+  text-align: center;
+  display: table;
+  margin: auto;
+  margin-top: 10px;
+ }
+```
+4. Link to Url - `<a href="{% url 'update' %}">Edit Profile</a>` 
+
+### III. Show Profile Details <a href="" name="c_details"> - </a>
+
+* customer > views.py 
+
+```python
+@login_required(login_url='signin')
+def profileView(request):
+    current_user = request.user
+    profile = UserProfile.objects.get(user_id=current_user.id)
+    context = {
+        'profile': profile,
+    }
+    return render(request, 'customer/profile.html', context)
+```
+
+* templates > customer > profile.html
+
+```html
+<table class="shopping-cart-table table">
+    <tr>
+        <th class="text-left">
+            <a href="{% url 'update' %}" class="primary-btn">Update Profile</a>
+            <a href="{% url 'change_password' %}" class="primary-btn">Change Password</a>
+        </th>   
+        <td>
+            <img src="{{ profile.imageURL }}" height="150px" width="150px" class="img-circle">
+        </td>
+    </tr>
+    <tr>
+        <th class="text-left">Name Surname</th>
+        <td class="text-left">{{ profile.full_name }}</td>
+    </tr>
+    <tr>
+        <th class="text-left">Email</th>
+        <td class="text-left">{{ profile.user.email}}</td>
+    </tr>
+    <tr>
+        <th class="text-left">Phone</th>
+        <td class="text-left">{{ profile.phone}}</td>
+    </tr>
+    <tr>
+        <th class="text-left">Addres</th>
+        <td class="text-left">{{ profile.address}}</td>
+    </tr>
+    <tr>
+        <th class="text-left">City</th>
+        <td class="text-left">{{ profile.city}}</td>
+    </tr>
+    <tr>
+        <th class="text-left">State</th>
+        <td class="text-left">{{ profile.state}}</td>
+    </tr>
+    <tr>
+        <th class="text-left">Zip Code</th>
+        <td class="text-left">{{ profile.zipcode}}</td>
+    </tr>
+    <tr>
+        <th class="text-left">Country</th>
+        <td class="text-left">{{ profile.country}}</td>
+    </tr>
+</table>
+```
+1. Link to Url - `<a href="{% url 'profile' %}">My Account</a>`
+
+### IV. Change Password <a href="" name="c_password"> - </a>
+
+1. Create file - templates > customer - `change_password.html`
+
+* customer > views.py 
+
+```python
+from django.contrib.auth import login
+
+
+@login_required(login_url='signin')
+def changePassword(request):
+    profile = UserProfile.objects.get(user__id=request.user.id)
+    context = {
+        'profile': profile,
+    }
+    if request.method == 'GET':
+        return render(request, 'customer/change_password.html', context)
+
+    if request.method == 'POST':
+        old_password = request.POST['old_password']
+        password = request.POST['password']
+
+        user = User.objects.get(id=request.user.id)
+        check = user.check_password(old_password)
+        if check == True:
+            user.set_password(password)
+            user.save()
+            messages.success(request, 'Password Change Successfully')
+            user = User.objects.get(username=user.username)
+            login(request, user)
+            return redirect('profile')
+        else:
+            messages.error(request, 'Old password is not metch')
+            return render(request, 'customer/change_password.html', context)
+
+        return render(request, 'customer/change_password.html', context)
+
+```
+* customer > urls.py
+
+```py
+
+urlpatterns = [
+    path('change_password/', views.changePassword, name='change_password'),
+]
+
+```
+* templates > customer > change_password.html
+
+```html
+<form id="validationForm" class="clearfix" method="POST" action="">
+{% csrf_token %}
+{% include 'partials/_messages.html' %}
+    <div class="col-md-6 col-md-offset-3">
+        <div class="billing-details">
+            <div class="section-title"><h3 class="title">Change Password</h3></div>
+            <div class="form-group">
+                <input class="input" type="password" id="old_password" name="old_password" placeholder="Old Password">
+            </div>
+            <div class="form-group">
+                <input class="input" type="password" id="password" name="password" placeholder="New Password">
+            </div>
+            <div class="form-group">
+                <input class="input" type="password" name="confirm_password" placeholder="Re-enter Password">
+            </div>
+            <button type="submit"  class="primary-btn">Change Password</button>
+        </div>
+    </div>
+</form>
+```
+1. Link to Url - `<a href="{% url 'change_password' %}"> Change Password </a>`
+
 
 ## Getting started
 
