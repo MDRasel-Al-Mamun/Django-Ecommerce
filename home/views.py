@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 def homeView(request):
     page = 'home'
-    day = timezone.now() - timezone.timedelta(hours=48)
+    day = timezone.now() - timezone.timedelta(hours=100)
     products = Product.objects.filter(create_at__gte=day, status='Published').order_by('-id')[:10]
     product_latest = Product.objects.filter(status='Published').order_by('-id')[:4]
     product_pick = Product.objects.filter(status='Published').order_by('?')[:4]

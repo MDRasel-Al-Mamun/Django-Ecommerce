@@ -5,159 +5,165 @@
 {% load ecommercetags %}
 
 <header>
- <div id="top-header">
-  <div class="container">
-   <div class="pull-left">
-    <span>Welcome to E-shop!</span>
-   </div>
-   <div class="pull-right">
-    <ul class="header-top-links">
-     <li><a href="#">Store</a></li>
-     <li><a href="#">Newsletter</a></li>
-     <li><a href="#">FAQ</a></li>
-     <li class="dropdown default-dropdown">
-      <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">ENG
-       <i class="fa fa-caret-down"></i>
-      </a>
-      <ul class="custom-menu">
-       <li><a href="#">English (ENG)</a></li>
-       <li><a href="#">Russian (Ru)</a></li>
-       <li><a href="#">French (FR)</a></li>
-       <li><a href="#">Spanish (Es)</a></li>
-      </ul>
-     </li>
-     <li class="dropdown default-dropdown">
-      <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">USD
-       <i class="fa fa-caret-down"></i>
-      </a>
-      <ul class="custom-menu">
-       <li><a href="#">USD ($)</a></li>
-       <li><a href="#">EUR (€)</a></li>
-      </ul>
-     </li>
-    </ul>
-   </div>
-  </div>
- </div>
-
- <div id="header">
-  <div class="container">
-   <div class="pull-left">
-    <div class="header-logo">
-     <a class="logo" href="{% url 'home' %}">
-      <img src="{% static 'img/logo.png' %}" alt="">
-     </a>
-    </div>
-
-    <div class="header-search">
-     <form action="/search/" method="POST">
-      {% csrf_token %}
-      <input id="query" name="query" class="input search-input" value="{{query}}" type="text" placeholder="Enter your keyword">
-      {% categorylist as category %}
-      <select name="catid" class="input search-categories">
-       <option value="0">All Categories</option>
-       {% recursetree category %}
-        {% if node.is_leaf_node %}
-         <option value="{{ node.id }}">{{ node.title }}</option>
-        {% endif %}
-        {% if not node.is_leaf_node %}
-         <optgroup label="{{ node.title }}">{{ children }}</optgroup>
-        {% endif %}
-       {% endrecursetree %}
-      </select>
-      <button type="submit" class="search-btn"><i class="fa fa-search"></i></button>
-     </form>
-    </div>
-
-
-   </div>
-   <div class="pull-right">
-    <ul class="header-btns">
-     <li class="header-account dropdown default-dropdown">
-      <div class="dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="true">
-       {% if user.is_authenticated %}
-       <div class="header-btns-icon">
-        <img src="{{ request.user.userprofile.imageURL }}" height="40px" width="40px" alt="">
-       </div>
-       <strong class="text-uppercase">{{ request.user.userprofile.full_name }}
-        <i class="fa fa-caret-down"></i>
-       </strong>
-       {% else %}
-        <div class="header-btns-icon">
-         <i class="fa fa-user-o"></i>
-        </div>
-        <strong class="text-uppercase">Hi, Welcome !</strong>
-       {% endif %}
+  <div id="top-header">
+    <div class="container">
+      <div class="pull-left">
+        <span>Welcome to E-shop!</span>
       </div>
-      {% if user.is_authenticated %}
-      <a href="{% url 'signout' %}" class="text-uppercase">Sign Out</a>
-      <ul class="custom-menu">
-       <li>
-        <a href="{% url 'profile' %}"><i class="fa fa-user-o"></i> My Account</a>
-       </li>
-       <li><a href="#"><i class="fa fa-heart-o"></i> My Wishlist</a></li>
-       <li><a href="#"><i class="fa fa-exchange"></i> Compare</a></li>
-       <li><a href="#"><i class="fa fa-check"></i> Checkout</a></li>
-       <li><a href="#"><i class="fa fa-user-plus"></i> Create An Account</a></li>
-      </ul>
-      {% else %}
-      <a href="{% url 'signin' %}" class="text-uppercase">Login</a> /
-      <a href="{% url 'signup' %}" class="text-uppercase">Join</a>
-      {% endif %}
-     </li>
-
-     <li class="header-cart dropdown default-dropdown">
-      <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-       <div class="header-btns-icon">
-        <i class="fa fa-shopping-cart"></i>
-        <span class="qty">3</span>
-       </div>
-       <strong class="text-uppercase">My Cart:</strong>
-       <br>
-       <span>35.20$</span>
-      </a>
-      <div class="custom-menu">
-       <div id="shopping-cart">
-        <div class="shopping-cart-list">
-         <div class="product product-widget">
-          <div class="product-thumb">
-           <img src="{% static 'img/thumb-product01.jpg' %}" alt="">
-          </div>
-          <div class="product-body">
-           <h3 class="product-price">$32.50 <span class="qty">x3</span></h3>
-           <h2 class="product-name"><a href="#">Product Name Goes Here</a></h2>
-          </div>
-          <button class="cancel-btn"><i class="fa fa-trash"></i></button>
-         </div>
-         <div class="product product-widget">
-          <div class="product-thumb">
-           <img src="{% static 'img/thumb-product01.jpg' %}" alt="">
-          </div>
-          <div class="product-body">
-           <h3 class="product-price">$32.50 <span class="qty">x3</span></h3>
-           <h2 class="product-name"><a href="#">Product Name Goes Here</a></h2>
-          </div>
-          <button class="cancel-btn"><i class="fa fa-trash"></i></button>
-         </div>
-        </div>
-        <div class="shopping-cart-btns">
-         <button class="main-btn">View Cart</button>
-         <button class="primary-btn">Checkout
-          <i class="fa fa-arrow-circle-right"></i>
-         </button>
-        </div>
-       </div>
+      <div class="pull-right">
+        <ul class="header-top-links">
+          <li><a href="#">Store</a></li>
+          <li><a href="#">Newsletter</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li class="dropdown default-dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">ENG
+              <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="custom-menu">
+              <li><a href="#">English (ENG)</a></li>
+              <li><a href="#">Russian (Ru)</a></li>
+              <li><a href="#">French (FR)</a></li>
+              <li><a href="#">Spanish (Es)</a></li>
+            </ul>
+          </li>
+          <li class="dropdown default-dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">USD
+              <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="custom-menu">
+              <li><a href="#">USD ($)</a></li>
+              <li><a href="#">EUR (€)</a></li>
+            </ul>
+          </li>
+        </ul>
       </div>
-     </li>
-
-     <li class="nav-toggle">
-      <button class="nav-toggle-btn main-btn icon-btn">
-       <i class="fa fa-bars"></i>
-      </button>
-     </li>
-
-    </ul>
-   </div>
+    </div>
   </div>
- </div>
+
+  <div id="header">
+    <div class="container">
+      <div class="pull-left">
+        <div class="header-logo">
+          <a class="logo" href="{% url 'home' %}">
+            <img src="{% static 'img/logo.png' %}" alt="">
+          </a>
+        </div>
+
+        <div class="header-search">
+          <form action="/search/" method="POST">
+            {% csrf_token %}
+            <input id="query" name="query" class="input search-input" value="{{query}}" type="text"
+              placeholder="Enter your keyword">
+            {% categorylist as category %}
+            <select name="catid" class="input search-categories">
+              <option value="0">All Categories</option>
+              {% recursetree category %}
+              {% if node.is_leaf_node %}
+              <option value="{{ node.id }}">{{ node.title }}</option>
+              {% endif %}
+              {% if not node.is_leaf_node %}
+              <optgroup label="{{ node.title }}">{{ children }}</optgroup>
+              {% endif %}
+              {% endrecursetree %}
+            </select>
+            <button type="submit" class="search-btn"><i class="fa fa-search"></i></button>
+          </form>
+        </div>
+
+
+      </div>
+      <div class="pull-right">
+        <ul class="header-btns">
+          <li class="header-account dropdown default-dropdown">
+            <div class="dropdown-toggle" role="button" data-toggle="dropdown" aria-expanded="true">
+              {% if user.is_authenticated %}
+              <div class="header-btns-icon">
+                <img src="{{ request.user.userprofile.imageURL }}" height="40px" width="40px" alt="">
+              </div>
+              <strong class="text-uppercase">{{ request.user.userprofile.full_name }}
+                <i class="fa fa-caret-down"></i>
+              </strong>
+              {% else %}
+              <div class="header-btns-icon">
+                <i class="fa fa-user-o"></i>
+              </div>
+              <strong class="text-uppercase">Hi, Welcome !</strong>
+              {% endif %}
+            </div>
+            {% if user.is_authenticated %}
+            <a href="{% url 'signout' %}" class="text-uppercase">Sign Out</a>
+            <ul class="custom-menu">
+              <li>
+                <a href="{% url 'profile' %}"><i class="fa fa-user-o"></i> My Account</a>
+              </li>
+              <li><a href="#"><i class="fa fa-heart-o"></i> My Wishlist</a></li>
+              <li><a href="#"><i class="fa fa-exchange"></i> Compare</a></li>
+              <li><a href="#"><i class="fa fa-check"></i> Checkout</a></li>
+              <li><a href="#"><i class="fa fa-user-plus"></i> Create An Account</a></li>
+            </ul>
+            {% else %}
+            <a href="{% url 'signin' %}" class="text-uppercase">Login</a> /
+            <a href="{% url 'signup' %}" class="text-uppercase">Join</a>
+            {% endif %}
+          </li>
+
+          <li class="header-cart dropdown default-dropdown">
+            <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+              <div class="header-btns-icon">
+                <i class="fa fa-shopping-cart"></i>
+                {% shopcartcount user.id as count %}
+                <span class="qty">{{ count }}</span>
+              </div>
+              <strong class="text-uppercase">My Cart:</strong>
+              <br>
+              {% totalcount user.id as total %}
+              <span>$ {{ total }}</span>
+            </a>
+            {% if user.is_authenticated %}
+            <div class="custom-menu">
+              <div id="shopping-cart">
+                <div class="shopping-cart-list">
+                  {% shopcart user.id as product %}
+                  {% for product in product %}
+                  <div class="product product-widget">
+                    <div class="product-thumb">
+                      <img src="{{ product.product.imageURL }}" alt="">
+                    </div>
+                    <div class="product-body">
+                      <h3 class="product-price">${{ product.product.price }}
+                        <span class="qty">x{{ product.quantity }}</span>
+                      </h3>
+                      <h2 class="product-name"><a
+                          href="{{ product.product.get_absolute_url }}">{{ product.product.title|truncatewords:4 }}</a>
+                      </h2>
+                    </div>
+                    <a href="{% url 'deleteshopcart' product.id %}" class="cancel-btn">
+                      <i class="fa fa-trash"></i>
+                    </a>
+                  </div>
+                  {% endfor %}
+
+                </div>
+                <div class="shopping-cart-btns">
+                  <a href="{% url 'shopcart' %}" class="main-btn">View Cart</a>
+                  <button class="primary-btn">Checkout
+                    <i class="fa fa-arrow-circle-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+          </li>
+
+          <li class="nav-toggle">
+            <button class="nav-toggle-btn main-btn icon-btn">
+              <i class="fa fa-bars"></i>
+            </button>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+  </div>
 </header>

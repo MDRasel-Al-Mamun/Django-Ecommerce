@@ -16,6 +16,8 @@ To Create a Full Ecommerce Website with Django
 
 > - <a href="#customer">7. Customer Profile Setup </a>
 
+> - <a href="#cart">8. Add & Delete Product In Shop Cart </a>
+
 
 ## 1. Category & Product Model Setup <a href="" name="model"> - </a>
 
@@ -2541,6 +2543,343 @@ urlpatterns = [
 </form>
 ```
 1. Link to Url - `<a href="{% url 'change_password' %}"> Change Password </a>`
+
+
+## 8. Add & Delete Product In Shop Cart <a href="" name="cart"> - </a>
+
+
+> - <a href="#m_cart">I. Create Shop Cart Model & Form </a>
+
+> - <a href="#v_cart">II. Shop Cart Views & URL Setup </a>
+
+> - <a href="#s_cart">III. Show Cart Products </a>
+
+> - <a href="#l_cart">IV. Link With Add To Cart & Quentity Setup  </a>
+
+
+### I. Create Shop Cart Model & Form <a href="" name="m_cart"> - </a>
+
+
+1. Create a order app `python manage.py startapp order`
+
+2. Define app - ecommerce > settings > base.py - `'order.apps.OrderConfig'` 
+
+3. Create url - ecommerce > urls.py - `path('order/', include('order.urls')),`
+
+4. Create url file - `order > urls.py`
+
+* order > models.py  
+
+```python
+from django.db import models
+from django.contrib.auth.models import User
+from product.models import Product
+from django.forms import ModelForm
+
+
+class ShopCart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    quantity = models.IntegerField()
+
+    def __str__(self):
+        return self.product.title
+
+    @property
+    def price(self):
+        return (self.product.price)
+
+    @property
+    def amount(self):
+        return (self.quantity * self.product.price)
+
+
+class ShopCartForm(ModelForm):
+    class Meta:
+        model = ShopCart
+        fields = ['quantity']
+
+```
+
+* order > admin.py 
+
+```py
+from django.contrib import admin
+from . models import ShopCart
+
+class ShopCartAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'user', 'quantity', 'price', 'amount']
+    list_filter = ['user']
+
+    class Meta:
+        model = ShopCart
+
+admin.site.register(ShopCart, ShopCartAdmin)
+
+```
+
+1. Run - `python manage.py makemigrations` & `pythone manage.py migrate`
+
+
+### II. Shop Cart Views & URL Setup <a href="" name="v_cart"> - </a>
+
+* order > views.py 
+
+```py
+
+from django.shortcuts import render
+from django.contrib import messages
+from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
+from order.models import ShopCart, ShopCartForm
+from product.models import Category, Product
+
+
+@login_required(login_url='signin')
+def addToShopCart(request, id):
+    url = request.META.get('HTTP_REFERER')
+    current_user = request.user
+    checkproduct = ShopCart.objects.filter(product_id=id)
+
+    if checkproduct:
+        control = 1
+    else:
+        control = 0
+
+    if request.method == 'POST':
+        form = ShopCartForm(request.POST)
+        if form.is_valid():
+            if control == 1:
+                data = ShopCart.objects.get(product_id=id)
+                data.quantity += form.cleaned_data['quantity']
+                data.save()
+            else:
+                data = ShopCart()
+                data.user_id = current_user.id
+                data.product_id = id
+                data.quantity = form.cleaned_data['quantity']
+                data.save()
+        return HttpResponseRedirect(url)
+
+    else:
+        if control == 1:
+            data = ShopCart.objects.get(product_id=id)
+            data.quantity += 1
+            data.save()
+        else:
+            data = ShopCart()
+            data.user_id = current_user.id
+            data.product_id = id
+            data.quantity = 1
+            data.save()
+        return HttpResponseRedirect(url)
+
+
+@login_required(login_url='signin')
+def shopCart(request):
+    current_user = request.user
+    shopcart = ShopCart.objects.filter(user_id=current_user.id)
+    total = 0
+    for cart in shopcart:
+        total += cart.product.price * cart.quantity
+
+    context = {
+        'shopcart': shopcart,
+        'total': total,
+    }
+    return render(request, 'order/cart.html', context)
+
+
+@login_required(login_url='signin')
+def deleteShopCart(request, id):
+    url = request.META.get('HTTP_REFERER')
+    ShopCart.objects.filter(id=id).delete()
+    return HttpResponseRedirect(url)
+
+```
+
+* order > urls.py
+
+```py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('shopcart/', views.shopCart, name='shopcart'),
+    path('addtoshopcart/<int:id>', views.addToShopCart, name='addtoshopcart'),
+    path('deleteshopcart/<int:id>', views.deleteShopCart, name='deleteshopcart'),
+]
+
+```
+
+
+### III. Show Cart Products <a href="" name="s_cart"> - </a>
+
+1. Create file - templates > order - `cart.html`
+
+* templates > order > cart.html
+
+```html
+<table class="shopping-cart-table table">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th></th>
+            <th class="text-center">Price</th>
+            <th class="text-center">Quantity</th>
+            <th class="text-center">Total</th>
+            <th class="text-right"></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for cart in shopcart %}
+        <tr>
+            <td class="thumb">
+                <img src="{{ cart.product.imageURL }}" alt="">
+            </td>
+            <td class="details">
+                <a href="{{ cart.product.get_absolute_url }}">
+                    {{ cart.product.title|truncatewords:8 }}
+                </a>
+            </td>
+            <td class="price text-center">
+                <strong>${{ cart.product.price }}</strong>
+            </td>
+            <td class="qty text-center"><strong>{{cart.quantity}}</strong></td>
+            <td class="total text-center">
+                <strong class="primary-color">${{ cart.amount }}</strong>
+            </td>
+            <td class="text-right">
+                <a href="{% url 'deleteshopcart' cart.id %}" class="main-btn icon-btn">
+                <i class="fa fa-close"></i>
+                </a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <th class="empty" colspan="3"></th>
+            <th>SUBTOTAL</th>
+            <th colspan="2" class="sub-total">${{ total }}</th>
+        </tr>
+        <tr>
+            <th class="empty" colspan="3"></th>
+            <th>TOTAL</th>
+            <th colspan="2" class="total">${{ total }}</th>
+        </tr>
+    </tfoot>
+</table>
+```
+
+
+### IV. Link With Add To Cart & Quentity Setup <a href="" name="l_cart"> - </a>
+
+* 1. Link - templates > home > product.html & search.html | product > category.html
+
+```html
+<a href="{% url 'addtoshopcart' product.id %}" class="primary-btn add-to-cart">
+    <i class="fa fa-shopping-cart"></i> Add to Cart
+</a>
+```
+
+* 2. Quentity - templates > product > product_detail.html
+
+```html
+<form action="{% url 'addtoshopcart' product.id %}" method="post">
+{% csrf_token %}
+    <div class="qty-input">
+        <span class="text-uppercase">QTY: </span>
+        <input name="quantity" class="input" type="number" value="1" min="1" max="{{ product.amount }}">
+    </div>
+        <button type="submit" class="primary-btn add-to-cart">
+            <i class="fa fa-shopping-cart"></i> Add to Cart
+        </button>
+</form>
+```
+
+
+* 3. Custom Tag - home > templatetags > ecommercetags.py
+
+```py
+from order.models import ShopCart
+
+@register.simple_tag
+def shopcart(userid):
+    product = ShopCart.objects.all()
+    return product
+
+
+@register.simple_tag
+def shopcartcount(userid):
+    count = ShopCart.objects.filter(user_id=userid).count()
+    return count
+
+
+@register.simple_tag
+def totalcount(userid):
+    shopcart = ShopCart.objects.filter(user_id=userid)
+    total = 0
+    for shop in shopcart:
+        total += shop.product.price * shop.quantity
+    return total
+```
+
+* 4. Show Header - templates > partials > _header.html
+
+```html
+{% load ecommercetags %}
+
+<li class="header-cart dropdown default-dropdown">
+    <a href="" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+        <div class="header-btns-icon">
+            <i class="fa fa-shopping-cart"></i>
+            {% shopcartcount user.id as count %}
+            <span class="qty">{{ count }}</span>
+        </div>
+        <strong class="text-uppercase">My Cart:</strong><br>
+        {% totalcount user.id as total %}
+        <span>$ {{ total }}</span>
+    </a>
+    {% if user.is_authenticated %}
+    <div class="custom-menu">
+        <div id="shopping-cart">
+            <div class="shopping-cart-list">
+                {% shopcart user.id as product %}
+                {% for product in product %}
+                <div class="product product-widget">
+                    <div class="product-thumb">
+                        <img src="{{ product.product.imageURL }}" alt="">
+                    </div>
+                    <div class="product-body">
+                        <h3 class="product-price">${{ product.product.price }}
+                            <span class="qty">x{{ product.quantity }}</span>
+                        </h3>
+                        <h2 class="product-name">
+                            <a href="{{ product.product.get_absolute_url }}">
+                                {{ product.product.title|truncatewords:4 }}
+                            </a>
+                        </h2>
+                    </div>
+                    <a href="{% url 'deleteshopcart' product.id %}" class="cancel-btn">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                </div>
+                {% endfor %}
+
+            </div>  
+            <div class="shopping-cart-btns">
+                <a href="{% url 'shopcart' %}" class="main-btn">View Cart</a>
+                <button class="primary-btn">Checkout
+                    <i class="fa fa-arrow-circle-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</li>
+
+```
 
 
 ## Getting started
